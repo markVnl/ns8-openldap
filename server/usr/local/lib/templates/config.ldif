@@ -24,11 +24,12 @@ olcLogLevel: ${LDAP_LOGLEVEL}
 dn: cn=module,cn=config
 objectClass: olcModuleList
 cn: module
-olcModulepath:	/usr/lib/openldap
-olcModuleload:	back_mdb.so
-olcModuleload:	syncprov.so
-olcModuleload:	dynlist.so
-olcModuleload:  pw-sha2.so
+olcModulepath: /usr/lib/openldap
+olcModuleload: back_mdb.so
+olcModuleload: syncprov.so
+olcModuleload: dynlist.so
+olcModuleload: pw-sha2.so
+olcModuleload: ppolicy.so
 
 #
 # Schema
@@ -42,6 +43,7 @@ include: file:///etc/openldap/schema/cosine.ldif
 include: file:///etc/openldap/schema/nis.ldif
 include: file:///etc/openldap/schema/inetorgperson.ldif
 include: file:///etc/openldap/schema/dyngroup.ldif
+include: file:///etc/openldap/schema/namedobject.ldif
 
 #
 # Frontend DB, with global (low-priority) ACL definitions
@@ -110,3 +112,11 @@ dn: olcOverlay=syncprov,olcDatabase={2}mdb,cn=config
 objectClass: olcOverlayConfig
 objectClass: olcSyncProvConfig
 olcOverlay: syncprov
+
+# Enable ppolicy on data DB
+dn: olcOverlay=ppolicy,olcDatabase={2}mdb,cn=config
+objectClass: olcPPolicyConfig
+olcOverlay: ppolicy
+olcPPolicyDefault: cn=default,ou=PPolicy,${LDAP_SUFFIX}
+olcPPolicyHashCleartext: FALSE
+olcPPolicyUseLockout: TRUE
