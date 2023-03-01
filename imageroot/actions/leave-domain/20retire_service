@@ -34,8 +34,9 @@ domain = os.environ['LDAP_DOMAIN']
 rdb = agent.redis_connect(privileged=True)
 trx = rdb.pipeline()
 trx.delete(agent_id + '/srv/tcp/ldap')
-trx.publish(agent_id + '/event/account-provider-changed', json.dumps({
+trx.publish(agent_id + '/event/service-ldap-changed', json.dumps({
     'domain': domain,
+    'node': int(os.environ['NODE_ID']),
     'key': agent_id + '/srv/tcp/ldap',
 }))
 trx.execute()

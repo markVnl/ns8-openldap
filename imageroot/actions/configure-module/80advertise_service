@@ -64,8 +64,9 @@ data={
 rdb = agent.redis_connect(privileged=True)
 trx = rdb.pipeline()
 trx.hset(agent_id + '/srv/tcp/ldap', mapping=data)
-trx.publish(agent_id + '/event/account-provider-changed', json.dumps({
+trx.publish(agent_id + '/event/service-ldap-changed', json.dumps({
     'domain': domain,
+    'node': node_id,
     'key': agent_id + '/srv/tcp/ldap',
 }))
 trx.execute()
