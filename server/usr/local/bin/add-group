@@ -35,8 +35,8 @@ usage_error()
     exit 2
 }
 
-# XXX default ngid? e.g. max uidNumber + 1
-ngid=$(( 5000 + RANDOM % 10000 ))
+maxid=$(ldapsearch -b "ou=Groups,${LDAP_SUFFIX}" "(cn=*)" gidNumber | awk  '$0 ~ /^gidNumber:/ {print $2}' | sort -n | tail -n 1)
+ngid=$(( maxid + 1 ))
 
 while getopts "u:d:g:h" optname ; do
     case ${optname} in

@@ -38,8 +38,8 @@ usage_error()
 }
 
 ngid=1001
-# XXX default nuid? e.g. max uidNumber + 1
-nuid=$(( 1003 + RANDOM % 8996 ))
+maxid=$(ldapsearch -b "ou=People,${LDAP_SUFFIX}" "(uid=*)" uidNumber | awk  '$0 ~ /^uidNumber:/ {print $2}' | sort -n | tail -n 1)
+nuid=$(( maxid + 1 ))
 
 while getopts "g:d:p:G:U:h" optname ; do
     case ${optname} in
