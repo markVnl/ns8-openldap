@@ -39,6 +39,12 @@ if 'groups' in request:
 if 'display_name' in request:
     alteruser_cmd += ['-d', request['display_name']]
 
+if 'locked' in request:
+    if request['locked'] == True:
+        alteruser_cmd += ['-l']
+    else:
+        alteruser_cmd += ['-u']
+
 alteruser_cmd.append(user)
 
 subprocess.run(alteruser_cmd, input=request.get('password'), stdout=sys.stderr, check=True, text=True)

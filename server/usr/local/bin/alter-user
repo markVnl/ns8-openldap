@@ -126,30 +126,30 @@ fi
 
     # Lock user
     if [ "${lflag}" = 1 ]; then
-        hash=$(ldapsearch -LLL -Q -o ldif-wrap=no -b ou=People,${LDAP_SUFFIX} "(uid=${user})" userPassword | awk '$0~ /^userPassword:/ {print $2}' | base64 -d)
-	echo ${hash} | grep -q '}!'
-	if [ $? = 1 ]; then
-	    crypt=$(echo ${hash} | awk -F '}' '{print $1"}"}')
-	    pass=$(echo ${hash} | awk -F '}' '{print $2}')
+        hash=$(ldapsearch -LLL -Q -o ldif-wrap=no -b ou=People,"${LDAP_SUFFIX}" "(uid=${user})" userPassword | awk '$0~ /^userPassword:/ {print $2}' | base64 -d)
+	    echo "${hash}" | grep -q '}!'
+	    if [ $? = 1 ]; then
+	        crypt=$(echo "${hash}" | awk -F '}' '{print $1"}"}')
+	        pass=$(echo "${hash}" | awk -F '}' '{print $2}')
             printf 'dn: uid=%s,ou=People,%s\n' "${user}" "${LDAP_SUFFIX:?}"
             printf 'changetype: modify\n'
             printf 'replace: userPassword\n'
             printf 'userPassword: %s!%s\n' "${crypt}" "${pass}"
-	fi
+	    fi
     fi
 
     # Unlock user
     if [ "${uflag}" = 1 ]; then
-        hash=$(ldapsearch -LLL -Q -o ldif-wrap=no -b ou=People,${LDAP_SUFFIX} "(uid=${user})" userPassword | awk '$0~ /^userPassword:/ {print $2}' | base64 -d)
-	echo ${hash} | grep -q '}!'
-	if [ $? = 0 ]; then
-	    crypt=$(echo ${hash} | awk -F '!' '{print $1}')
-	    pass=$(echo ${hash} | awk -F '!' '{print $2}')
+        hash=$(ldapsearch -LLL -Q -o ldif-wrap=no -b ou=People,"${LDAP_SUFFIX}" "(uid=${user})" userPassword | awk '$0~ /^userPassword:/ {print $2}' | base64 -d)
+	    echo "${hash}" | grep -q '}!'
+	    if [ $? = 0 ]; then
+	        crypt=$(echo "${hash}" | awk -F '!' '{print $1}')
+	        pass=$(echo "${hash}" | awk -F '!' '{print $2}')
             printf 'dn: uid=%s,ou=People,%s\n' "${user}" "${LDAP_SUFFIX:?}"
             printf 'changetype: modify\n'
             printf 'replace: userPassword\n'
             printf 'userPassword: %s%s\n' "${crypt}" "${pass}"
-	fi
+	    fi
     fi
 
 ) | ldapmodify -Q
