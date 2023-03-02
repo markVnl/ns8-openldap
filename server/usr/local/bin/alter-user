@@ -32,14 +32,18 @@ usage_error()
     printf "      -g group1,group2,...  Set the user as member of the comma-separated list of groups\n"
     printf "      -d display_name          Set the user display name\n"
     printf "      -p password           Initial password; \"-\" reads from standard input\n"
+    printf "      -l                    Lock the user\n"
+    printf "      -u                    Unlock the user\n"
     exit 2
 }
 
-while getopts "g:d:p:h" optname ; do
+while getopts "g:d:p:hlu" optname ; do
     case ${optname} in
         g)  gflag=1 ; groups="${OPTARG}" ;;
         d)  dflag=1 ; display_name="${OPTARG}" ;;
         p)  pflag=1 ; password="${OPTARG}" ;;
+        l)  lflag=1 ;;
+        u)  uflag=1 ;;
         h)  usage_error ;;
         *)  usage_error ;;
     esac
@@ -119,6 +123,35 @@ fi
             print "memberUid: " user
         }'
     fi
+
+    # Lock user
+    if [ "${lflag}" = 1 ]; then
+        hash=$(ldapsearch -LLL -Q -o ldif-wrap=no -b ou=People,${LDAP_SUFFIX} "(uid=${user})" userPassword | awk '$0~ /^userPassword:/ {print $2}' | base64 -d)
+	echo ${hash} | grep -q '}!'
+	if [ $? = 1 ]; then
+	    crypt=$(echo ${hash} | awk -F '}' '{print $1"}"}')
+	    pass=$(echo ${hash} | awk -F '}' '{print $2}')
+            printf 'dn: uid=%s,ou=People,%s\n' "${user}" "${LDAP_SUFFIX:?}"
+            printf 'changetype: modify\n'
+            printf 'replace: userPassword\n'
+            printf 'userPassword: %s!%s\n' "${crypt}" "${pass}"
+	fi
+    fi
+
+    # Unlock user
+    if [ "${uflag}" = 1 ]; then
+        hash=$(ldapsearch -LLL -Q -o ldif-wrap=no -b ou=People,${LDAP_SUFFIX} "(uid=${user})" userPassword | awk '$0~ /^userPassword:/ {print $2}' | base64 -d)
+	echo ${hash} | grep -q '}!'
+	if [ $? = 0 ]; then
+	    crypt=$(echo ${hash} | awk -F '!' '{print $1}')
+	    pass=$(echo ${hash} | awk -F '!' '{print $2}')
+            printf 'dn: uid=%s,ou=People,%s\n' "${user}" "${LDAP_SUFFIX:?}"
+            printf 'changetype: modify\n'
+            printf 'replace: userPassword\n'
+            printf 'userPassword: %s%s\n' "${crypt}" "${pass}"
+	fi
+    fi
+
 ) | ldapmodify -Q
 
 if [ $? != 0 ]; then
