@@ -84,3 +84,28 @@ Other commands:
   referencing the given SERVERID.  While SERVERID is expected to be
   already destroyed, the local slapd server must be running. Applied
   changes are propagated to other servers with syncrepl as usual.
+
+# Run with Podman
+
+Create a `./lenv` file with the following contents
+
+    LDAP_SVCUSER=ldapservice
+    LDAP_SVCPASS=pass
+    LDAP_DOMAIN=dom.test
+    LDAP_SUFFIX=dc=dom,dc=test
+    LDAP_SERVERID=1
+    LDAP_PORT=10389
+    LDAP_IPADDR=10.5.4.1
+    LDAP_LOGTAG=domtest1
+
+Provision the domain
+
+    podman run -ti --rm --env-file=./lenv --volume=data1:/var/lib/openldap:z ghcr.io/nethserver/openldap-server:latest new-domain
+
+Start the service
+
+    podman run -d --name openldap --replace --network=host --rm --env-file=./lenv --volume=data1:/var/lib/openldap:z ghcr.io/nethserver/openldap-server:latest
+
+Enter the container
+
+    podman exec -ti openldap ash

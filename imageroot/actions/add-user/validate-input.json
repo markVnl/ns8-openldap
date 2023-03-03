@@ -9,6 +9,7 @@
             "user": "alice",
             "display_name": "Alice Jordan",
             "password": "secret",
+            "locked": false,
             "groups": [
                 "developers"
             ]
@@ -35,6 +36,11 @@
             "description": "If missing, a random password is set",
             "type": "string",
             "maxLength": 256
+        },
+        "locked": {
+            "type": "boolean",
+            "title": "Locked",
+            "description": "True, if the user account has been locked, preventing the user from logging in"
         },
         "groups": {
             "title": "Initial group membership",

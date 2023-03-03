@@ -30,6 +30,7 @@ user = request['user']
 groups = request.get('groups', [])
 password = request.get('password', '') # Empty string implies a random password is set
 display_name = request.get('display_name', '')
+locked = request.get('locked', False)
 
 adduser_cmd = ['podman', 'exec', '-i', 'openldap', 'add-user']
 
@@ -48,3 +49,7 @@ if display_name:
 adduser_cmd.append(user)
 
 subprocess.run(adduser_cmd, input=password, stdout=sys.stderr, check=True, text=True)
+
+if locked:
+    lock_cmd = ['podman', 'exec', '-i', 'openldap', 'alter-user', '-l', user]
+    subprocess.run(lock_cmd, stdout=sys.stderr, check=True, text=True)
