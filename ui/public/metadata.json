@@ -1,13 +1,14 @@
 {
-  "name": "openldap",
+  "name": "OpenLDAP",
   "description": {
-    "en": "My openldap module"
+    "en": "OpenLDAP provides user base and authentication to other applications",
+    "it": "OpenLDAP fornisce una base di utenti e autenticazione per altre applicazioni."
   },
   "categories": [],
   "authors": [
     {
-      "name": "Name Surname",
-      "email": "author@yourmail.org"
+      "name": "Davide Principi",
+      "email": "davide.principi@nbethesis.it"
     }
   ],
   "docs": {
