@@ -20,7 +20,6 @@ The LDAP database schema should be compliant with RFC2307.
   always added to this too)
 * `LDAP_SERVERID`, a unique positive integer required to identify the
   server among others of the same domain
-* `LDAP_LOGTAG`, server Syslog identifier
 * `LDAP_DEBUGLEVEL`, slapd debug-level (see `slapd` manpage for info).
 * `LDAP_LOGLEVEL`, slapd log level (see `slapd` manpage for info).
   Used to set log file verbosity, for debug purposes.
@@ -96,7 +95,6 @@ Create a `./lenv` file with the following contents
     LDAP_SERVERID=1
     LDAP_PORT=10389
     LDAP_IPADDR=10.5.4.1
-    LDAP_LOGTAG=domtest1
 
 Provision the domain
 

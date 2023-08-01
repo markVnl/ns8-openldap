@@ -34,7 +34,6 @@ ldapenv = {
     'LDAP_SERVERID': str(server_id),
     'LDAP_PORT': os.environ['TCP_PORT'],
     'LDAP_IPADDR': ip_address,
-    'LDAP_LOGTAG': os.environ['MODULE_ID'],
 }
 
 for lvar in ldapenv:

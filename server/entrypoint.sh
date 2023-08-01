@@ -31,7 +31,6 @@ LDAP_SUFFIX=${LDAP_SUFFIX:?}
 LDAP_DOMAIN=${LDAP_DOMAIN:?}
 LDAP_IPADDR=${LDAP_IPADDR:?}
 LDAP_PORT=${LDAP_PORT:?}
-LDAP_LOGTAG=${LDAP_LOGTAG:?}
 LDAP_DEBUGLEVEL=${LDAP_DEBUGLEVEL:?}
 LDAP_LOGLEVEL=${LDAP_LOGLEVEL:?}
 
@@ -52,7 +51,7 @@ mkdir -p run
 
 if [ $# -eq 0 ]; then
     rm -vf run/*
-    exec slapd -n "${LDAP_LOGTAG}" -d "${LDAP_DEBUGLEVEL}" -F conf.d -h "${tmpl_server_url} ldap://127.0.0.1:${LDAP_PORT} ldapi://"
+    exec slapd -d "${LDAP_DEBUGLEVEL}" -F conf.d -h "${tmpl_server_url} ldap://127.0.0.1:${LDAP_PORT} ldapi://"
 else
     exec "${@}"
 fi

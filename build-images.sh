@@ -78,7 +78,6 @@ buildah config \
     --env=LDAP_ADMPASS="secret" \
     --env=LDAP_DOMAIN="nethserver.test" \
     --env=LDAP_SUFFIX="dc=nethserver,dc=test" \
-    --env=LDAP_LOGTAG="slapd" \
     --env=LDAP_LOGLEVEL="16704" \
     --env=LDAP_DEBUGLEVEL="0" \
     "${container}"
