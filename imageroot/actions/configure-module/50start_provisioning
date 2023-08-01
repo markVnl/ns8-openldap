@@ -92,4 +92,3 @@ os.environ.update({
     'LDAP_ADMPASS': request['admpass'],
 })
 agent.run_helper(*podman_cmd).check_returncode()
-agent.dump_env() # Persist environment file for Systemd unit

@@ -36,5 +36,3 @@ ldapenv = {
 
 for lvar in ldapenv:
     agent.set_env(lvar, ldapenv[lvar])
-
-agent.dump_env()
