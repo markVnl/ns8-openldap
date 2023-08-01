@@ -10,16 +10,18 @@ repobase="${REPOBASE:-ghcr.io/nethserver}"
 # Configure the image name
 reponame="openldap"
 
+# Base OS for the service image
+alpine_version=3.17.2
+
 # Create a new empty container image
 container=$(buildah from scratch)
 
-# Reuse existing nodebuilder-openldap container, to speed up builds
-if ! buildah containers --format "{{.ContainerName}}" | grep -q nodebuilder-openldap; then
-    echo "Pulling NodeJS runtime..."
-    buildah from --name nodebuilder-openldap -v "${PWD}:/usr/src:Z" docker.io/library/node:lts
-fi
-
 if [[ -n $WITH_UI ]]; then
+    # Reuse existing nodebuilder-openldap container, to speed up builds
+    if ! buildah containers --format "{{.ContainerName}}" | grep -q nodebuilder-openldap; then
+        echo "Pulling NodeJS runtime..."
+        buildah from --name nodebuilder-openldap -v "${PWD}:/usr/src:Z" docker.io/library/node:18.14.1-alpine
+    fi
     echo "Build static UI files with node..."
     buildah run nodebuilder-openldap sh -c "cd /usr/src/ui && yarn install && yarn build"
 else
@@ -47,7 +49,7 @@ images+=("${repobase}/${reponame}")
 
 # Server image from Alpine OpenLDAP
 reponame="openldap-server"
-container=$(buildah from docker.io/library/alpine:3.15)
+container=$(buildah from docker.io/library/alpine:${alpine_version})
 buildah run "${container}" sh <<'EOF'
 apk add --no-cache \
     gettext \
