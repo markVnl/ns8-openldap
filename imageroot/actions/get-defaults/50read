@@ -22,7 +22,7 @@
 
 import sys
 import json
-import socket
+import agent
 
 request = json.load(sys.stdin)
 
@@ -34,7 +34,7 @@ response = {
 if 'domain' in request and len(request['domain']) > 0:
     response['domain'] = request['domain']
 else:
-    fqdn = socket.gethostname().lower()
+    fqdn = agent.get_hostname().lower()
     if '.' in fqdn:
         # strip first domain segment
         response['domain'] = fqdn[fqdn.find('.')+1:]
