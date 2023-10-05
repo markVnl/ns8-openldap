@@ -100,12 +100,12 @@ olcDbIndex: cn pres,eq,sub,subinitial
 olcDbIndex: memberUid pres,eq
 olcAccess: to attrs=userPassword by dn.base="
  gidNumber=101+uidNumber=100,cn=peercred,cn=external,cn=aut
- h" manage by set="[cn=domain admins,ou=Groups,${LDAP_SUFFIX}
- ]/memberUid & user/uid" manage by * auth
+ h" write by set="[cn=domain admins,ou=Groups,${LDAP_SUFFIX}
+ ]/memberUid & user/uid" write by self write by * auth
 olcAccess: to * by dn.base="gidNumber=101+uidNumber=100,
  cn=peercred,cn=external,cn=auth" manage by set="[cn=do
  main admins,ou=Groups,${LDAP_SUFFIX}
- ]/memberUid & user/uid" manage by * read
+ ]/memberUid & user/uid" write by * read
 
 # Enable syncprov on data DB
 dn: olcOverlay=syncprov,olcDatabase={2}mdb,cn=config
