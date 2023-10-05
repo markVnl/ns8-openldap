@@ -33,7 +33,7 @@ pwdMinAge: 0
 pwdMaxAge: 0
 pwdMinLength: 8
 pwdInHistory: 5
-pwdLockout: TRUE
+pwdLockout: FALSE
 
 dn: cn=${LDAP_SVCUSER},${LDAP_SUFFIX}
 objectClass: device
