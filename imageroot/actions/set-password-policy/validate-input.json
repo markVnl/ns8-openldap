@@ -1,0 +1,66 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "set-password-policy input",
+    "$id": "http://schema.nethserver.org/openldap/set-password-policy-input.json",
+    "description": "Set the domain password policy",
+    "examples": [
+        {
+            "expiration": {
+                "enforced": false,
+                "max_age": 0,
+                "min_age": 0
+            },
+            "strength": {
+                "enforced": true,
+                "history_length": 24,
+                "password_min_length": 5,
+                "complexity_check": true
+            }
+        }
+    ],
+    "type": "object",
+    "required": [
+        "expiration",
+        "strength"
+    ],
+    "properties": {
+        "expiration": {
+            "type": "object",
+            "required": [
+                "enforced"
+            ],
+            "properties": {
+                "enforced": {
+                    "type": "boolean"
+                },
+                "max_age": {
+                    "type": "integer"
+                },
+                "min_age": {
+                    "type": "integer"
+                }
+            }
+        },
+        "strength": {
+            "type": "object",
+            "required": [
+                "enforced"
+            ],
+            "properties": {
+                "enforced": {
+                    "type": "boolean"
+                },
+                "history_length": {
+                    "type": "integer"
+                },
+                "password_min_length": {
+                    "type": "integer"
+                },
+                "complexity_check": {
+                    "type": "boolean"
+                }
+            }
+        }
+    },
+    "$defs": {}
+}

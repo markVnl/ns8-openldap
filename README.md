@@ -74,3 +74,13 @@ Create user `first.user` as member of `mygroup1`
 Change First User's password
 
     api-cli run module/openldap1/alter-user --data '{"user":"first.user","password":"Neth,123"}'
+
+## Domain password policy
+
+Get the domain password policy
+
+    api-cli run module/openldap1/get-password-policy
+
+Set the domain password policy
+
+    api-cli run module/openldap2/set-password-policy --data '{"expiration": {"min_age": 0, "max_age": 7, "enforced": true}, "strength": {"enforced": true, "history_length": 0, "password_min_length": 8, "complexity_check": true}}'
