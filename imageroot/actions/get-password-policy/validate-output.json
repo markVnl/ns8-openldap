@@ -27,7 +27,9 @@
         "expiration": {
             "type": "object",
             "required": [
-                "enforced"
+                "enforced",
+                "max_age",
+                "min_age"
             ],
             "properties": {
                 "enforced": {
@@ -44,7 +46,10 @@
         "strength": {
             "type": "object",
             "required": [
-                "enforced"
+                "enforced",
+                "history_length",
+                "password_min_length",
+                "complexity_check"
             ],
             "properties": {
                 "enforced": {

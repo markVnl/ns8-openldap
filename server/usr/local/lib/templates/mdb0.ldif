@@ -26,14 +26,18 @@ ou: PPolicy
 dn: cn=default,ou=PPolicy,${LDAP_SUFFIX}
 objectClass: namedPolicy
 objectClass: pwdPolicy
+objectClass: pwdPolicyChecker
 cn: default
 pwdAttribute: userPassword
-pwdCheckQuality: 0
+pwdCheckQuality: 2
 pwdMinAge: 0
 pwdMaxAge: 0
 pwdMinLength: 8
 pwdInHistory: 5
 pwdLockout: FALSE
+pwdUseCheckModule: FALSE
+pwdCheckModuleArg: default
+pwdExpireWarning: 0
 
 dn: cn=${LDAP_SVCUSER},${LDAP_SUFFIX}
 objectClass: device

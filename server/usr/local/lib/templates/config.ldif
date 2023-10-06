@@ -120,3 +120,4 @@ olcOverlay: ppolicy
 olcPPolicyDefault: cn=default,ou=PPolicy,${LDAP_SUFFIX}
 olcPPolicyHashCleartext: FALSE
 olcPPolicyUseLockout: TRUE
+olcPPolicyCheckModule: ppcheck.so
