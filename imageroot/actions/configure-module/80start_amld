@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+
+#
+# Copyright (C) 2023 Nethesis S.r.l.
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+
+import agent
+import agent.tasks
+import sys
+import os
+import string
+import secrets
+
+
+_, amld_port, _ = (os.environ['TCP_PORTS'] + ',,').split(",", 2)
+
+agent.assert_exp(int(amld_port) > 0) # Ensure TCP port for api-moduled was allocated
+
+alphabet = string.ascii_letters + string.digits + '+-/,.-_^'
+amld_secret = ''.join([secrets.choice(alphabet) for i in range(32)])
+
+agent.write_envfile("api-moduled.env", {
+    "AMLD_JWT_REALM": os.environ["LDAP_DOMAIN"],
+    "AMLD_JWT_SECRET": amld_secret,
+    "AMLD_BIND_ADDRESS": ":" + amld_port,
+    "AMLD_EXPORT_ENV": "NODE_ID LDAP_DOMAIN REDIS_ADDRESS"
+})
+
+# Configure Traefik to route "/user-admin/<LDAP_DOMAIN>" path requests to
+# the api-moduled backend service:
+response = agent.tasks.run(
+    agent_id=agent.resolve_agent_id('traefik@node'),
+    action='set-route',
+    data={
+        'instance': os.environ['MODULE_ID'] + '-amld',
+        'url':  'http://127.0.0.1:' + amld_port,
+        'path': '/users-admin/' + os.environ['LDAP_DOMAIN'],
+        'http2https': True,
+        'strip_prefix': True,
+    },
+)
+
+agent.run_helper("systemctl", "-T", "--user", "enable", "--now", "api-moduled.service")

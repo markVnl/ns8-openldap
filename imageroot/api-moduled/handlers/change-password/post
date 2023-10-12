@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+
+#
+# Copyright (C) 2023 Nethesis S.r.l.
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+
+import json
+import sys
+import os
+import agent
+import subprocess
+
+from agent.ldapproxy import Ldapproxy
+from agent.ldapclient import Ldapclient
+
+request = json.load(sys.stdin)
+
+odomain = Ldapproxy().get_domain(os.environ["LDAP_DOMAIN"])
+
+oldapcli = Ldapclient.factory(**odomain)
+
+try:
+    ouser = oldapcli.get_user_entry(os.environ["JWT_ID"])
+except agent.ldapclient.exceptions.LdapclientEntryNotFound:
+    json.dump({"status": "failure", "message": "user_not_found"}, fp=sys.stdout)
+    sys.exit(0)
+
+oldapcli.ldapconn.unbind() # close LDAP connection FD
+
+# First attempt: try to change the password with simple bind, using the
+# user's credentials
+proc_lpasswd = subprocess.run(["podman", "exec", "-i", "openldap",
+    "ldappasswd", "-e", "ppolicy", "-S", "-W", "-E", "-x", "-D", ouser["dn"]],
+    input=request["current_password"] + "\n" + request["new_password"] + "\n"  + request["new_password"] + "\n",
+    text=True, capture_output=True)
+
+if proc_lpasswd.returncode == 49 and "Password expired" in proc_lpasswd.stderr:
+    print(agent.SD_WARNING + f"User {os.environ['JWT_ID']} is changing their expired password", file=sys.stderr)
+    # Second attempt: use SASL EXTERNAL authentication to get admin
+    # privileges and work around the expired password bind error. As
+    # admins have ACL "write" permission on userPassword field, the
+    # password quality checks are still applied:
+    proc_lpasswd = subprocess.run(["podman", "exec", "-i", "openldap",
+        "ldappasswd", "-e", "ppolicy", "-T", "/dev/stdin", ouser["dn"]],
+        input=request["new_password"], text=True, capture_output=True)
+
+# Log the last command output: it might contain troubleshoot information!
+print(proc_lpasswd.stdout, file=sys.stderr)
+
+if proc_lpasswd.returncode == 0:
+    json.dump({"status": "success", "message": "password_changed"}, fp=sys.stdout)
+else:
+    json.dump({"status": "failure", "message": proc_lpasswd.stdout or f"ldap_error_{proc_lpasswd.returncode}"}, fp=sys.stdout)

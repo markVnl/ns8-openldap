@@ -74,3 +74,26 @@ Create user `first.user` as member of `mygroup1`
 Change First User's password
 
     api-cli run module/openldap1/alter-user --data '{"user":"first.user","password":"Neth,123"}'
+
+## User management web portal
+
+The `openldap` module provides a public web portal where LDAP users can
+authenticate and change their passwords.
+
+The module registers a Traefik path route, with the domain name as suffix.
+For instance:
+
+    https://<node FQDN>/users-admin/domain.test/
+
+The backend of the module runs under the `api-moduled.service` Systemd
+unit supervision. Refer also to `api-moduled` documentation, provided by
+`ns8-core` repository.
+
+API implementation code is under `imageroot/api-moduled/handlers/`, which
+is mapped to an URL like
+
+    https://<node FQDN>/users-admin/domain.test/api/
+
+The `.json` files define the API input/output syntax validation, using the
+JSON schema language. As such they can give an idea of request/response
+payload structure.
