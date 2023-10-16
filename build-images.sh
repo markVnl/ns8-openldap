@@ -61,7 +61,27 @@ apk add --no-cache \
     openldap-passwd-sha2 \
     openldap-clients
 EOF
-
+buildah commit "${container}" server-builder
+builder=$(buildah from --volume=$PWD/ppcheck:/usr/src/ppcheck:z --network=host server-builder)
+buildah run "${builder}" sh <<'EOF'
+set -e
+apk add --no-cache build-base openldap-dev
+cd /usr/src/ppcheck
+pkgver=$(slapd -VV 2>&1 | awk '{print $4; exit;}')
+if [ ! -f openldap-${pkgver}.tgz ] ; then
+    wget -S https://www.openldap.org/software/download/OpenLDAP/openldap-release/openldap-${pkgver}.tgz
+    tar xfz openldap-${pkgver}.tgz
+    ln -v -s openldap-${pkgver} openldap
+    ( cd openldap ; ./configure ; cd include ; make ldap_config.h ; )
+fi
+make
+make install
+EOF
+# Copy the ppcheck.so (shared library) from the temporary builder to the
+# working container:
+buildah add --from ${builder} ${container} \
+    /usr/lib/openldap/ppcheck.so /usr/lib/openldap/ppcheck.so
+buildah rm ${builder}
 buildah add "${container}" server/ /
 buildah config \
     --user=ldap:ldap \
