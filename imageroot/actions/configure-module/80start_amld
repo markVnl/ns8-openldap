@@ -11,7 +11,12 @@ import sys
 import os
 import string
 import secrets
+import json
 
+agent_id = os.environ['AGENT_ID']
+node_id = int(os.environ['NODE_ID'])
+domain = os.environ['LDAP_DOMAIN']
+ip_address = os.environ['LDAP_IPADDR']
 
 _, amld_port, _ = (os.environ['TCP_PORTS'] + ',,').split(",", 2)
 
@@ -40,5 +45,23 @@ response = agent.tasks.run(
         'strip_prefix': True,
     },
 )
+
+# Add the `users-admin` service discovery information, and advertise this
+# new service instance:
+rdb = agent.redis_connect(privileged=True)
+trx = rdb.pipeline()
+trx.delete(agent_id + '/srv/http/users-admin')
+trx.hset(agent_id + '/srv/http/users-admin', mapping={
+    "port": amld_port,
+    "url": f"http://{ip_address}:{amld_port}",
+    "domain": domain,
+    "node": node_id,
+})
+trx.publish(agent_id + '/event/service-users-admin-changed', json.dumps({
+    'domain': domain,
+    'node': node_id,
+    'key': agent_id + '/srv/http/users-admin',
+}))
+trx.execute()
 
 agent.run_helper("systemctl", "-T", "--user", "enable", "--now", "api-moduled.service")

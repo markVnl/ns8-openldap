@@ -95,6 +95,16 @@ For instance:
 
     https://<node FQDN>/users-admin/domain.test/
 
+The backend endpoint is advertised as `users-admin` service and can be
+discovered in the usual ways, as documented in [Service
+discovery](https://nethserver.github.io/ns8-core/modules/service_providers/#service-discovery).
+For instance:
+
+    api-cli run module/mymodule1/list-service-providers  --data '{"service":"users-admin", "filter":{"domain":"dp.nethserver.net","node":"1"}}'
+
+The event `service-users-admin-changed` is raised when the serivice
+becomes available or is changed.
+
 The backend of the module runs under the `api-moduled.service` Systemd
 unit supervision. Refer also to `api-moduled` documentation, provided by
 `ns8-core` repository.
