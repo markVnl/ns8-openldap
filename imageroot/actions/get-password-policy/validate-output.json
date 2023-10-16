@@ -1,0 +1,71 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "get-password-policy output",
+    "$id": "http://schema.nethserver.org/openldap/get-password-policy-output.json",
+    "description": "Get the domain password policy",
+    "examples": [
+        {
+            "expiration": {
+                "enforced": false,
+                "max_age": 0,
+                "min_age": 0
+            },
+            "strength": {
+                "enforced": true,
+                "history_length": 24,
+                "password_min_length": 5,
+                "complexity_check": true
+            }
+        }
+    ],
+    "type": "object",
+    "required": [
+        "expiration",
+        "strength"
+    ],
+    "properties": {
+        "expiration": {
+            "type": "object",
+            "required": [
+                "enforced",
+                "max_age",
+                "min_age"
+            ],
+            "properties": {
+                "enforced": {
+                    "type": "boolean"
+                },
+                "max_age": {
+                    "type": "integer"
+                },
+                "min_age": {
+                    "type": "integer"
+                }
+            }
+        },
+        "strength": {
+            "type": "object",
+            "required": [
+                "enforced",
+                "history_length",
+                "password_min_length",
+                "complexity_check"
+            ],
+            "properties": {
+                "enforced": {
+                    "type": "boolean"
+                },
+                "history_length": {
+                    "type": "integer"
+                },
+                "password_min_length": {
+                    "type": "integer"
+                },
+                "complexity_check": {
+                    "type": "boolean"
+                }
+            }
+        }
+    },
+    "$defs": {}
+}
