@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+
+#
+# Copyright (C) 2023 Nethesis S.r.l.
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+
+import json
+import sys
+import os
+import agent
+import subprocess
+
+from agent.ldapproxy import Ldapproxy
+from agent.ldapclient import Ldapclient
+
+request = json.load(sys.stdin)
+
+odomain = Ldapproxy().get_domain(os.environ["LDAP_DOMAIN"])
+
+oldapcli = Ldapclient.factory(**odomain)
+
+try:
+    user_dn = oldapcli.get_user_entry(request['username'])["dn"]
+    ouser = oldapcli.get_user(request['username'])
+except agent.ldapclient.exceptions.LdapclientEntryNotFound:
+    sys.exit(2) # User not found
+
+proc_whoami = subprocess.run(["podman", "exec", "-i", "openldap",
+    "ldapwhoami", "-x", "-e", "ppolicy", "-D", user_dn, "-y", "/dev/stdin"],
+    input=request["password"], text=True, capture_output=True)
+
+oclaims = {
+    "uid": ouser["user"],
+    "groups": ouser["groups"],
+}
+
+if proc_whoami.returncode == 49 and "Password expired" in proc_whoami.stderr:
+    # Password must be changed immediately: return a token limited to
+    # password changing:
+    oclaims["scope"] = ["change-password"]
+elif proc_whoami.returncode != 0:
+    sys.exit(3) # Login failed
+
+json.dump(oclaims, fp=sys.stdout)

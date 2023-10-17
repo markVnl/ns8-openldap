@@ -84,3 +84,37 @@ Get the domain password policy
 Set the domain password policy
 
     api-cli run module/openldap2/set-password-policy --data '{"expiration": {"min_age": 0, "max_age": 7, "enforced": true}, "strength": {"enforced": true, "history_length": 0, "password_min_length": 8, "complexity_check": true}}'
+
+## User management web portal
+
+The `openldap` module provides a public web portal where LDAP users can
+authenticate and change their passwords.
+
+The module registers a Traefik path route, with the domain name as suffix.
+For instance:
+
+    https://<node FQDN>/users-admin/domain.test/
+
+The backend endpoint is advertised as `users-admin` service and can be
+discovered in the usual ways, as documented in [Service
+discovery](https://nethserver.github.io/ns8-core/modules/service_providers/#service-discovery).
+For instance:
+
+    api-cli run module/mymodule1/list-service-providers  --data '{"service":"users-admin", "filter":{"domain":"dp.nethserver.net","node":"1"}}'
+
+The event `service-users-admin-changed` is raised when the serivice
+becomes available or is changed.
+
+The backend of the module runs under the `api-moduled.service` Systemd
+unit supervision. Refer also to `api-moduled` documentation, provided by
+`ns8-core` repository.
+
+API implementation code is under `imageroot/api-moduled/handlers/`, which
+is mapped to an URL like
+
+    https://<node FQDN>/users-admin/domain.test/api/
+
+The `.json` files define the API input/output syntax validation, using the
+JSON schema language. As such they can give an idea of request/response
+payload structure.
+
