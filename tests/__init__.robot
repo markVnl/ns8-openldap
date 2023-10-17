@@ -1,8 +1,9 @@
 *** Settings ***
 Library           SSHLibrary
+Library           DateTime
 Resource    keywords.resource
 Suite Setup       Setup connection and test suite tools
-Suite Teardown    Stop the client tool container
+Suite Teardown    Tear down connection and test suite tools
 
 *** Variables ***
 ${SSH_KEYFILE}    %{HOME}/.ssh/id_ecdsa
@@ -18,4 +19,9 @@ Connect to the node
 
 Setup connection and test suite tools
     Connect to the node
+    Save the journal begin timestamp
     Start the client tool container
+
+Tear down connection and test suite tools
+    Stop the client tool container
+    Collect the suite journal

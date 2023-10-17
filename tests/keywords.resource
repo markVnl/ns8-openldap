@@ -48,3 +48,10 @@ Start the client tool container
 Stop the client tool container
     Execute Command    podman kill ldapclient
 
+Save the journal begin timestamp
+    ${tsnow} =    Get Current Date    result_format=epoch
+    Set Global Variable    ${JOURNAL_SINCE}    ${tsnow}
+
+Collect the suite journal
+    Execute Command    journalctl -S @${JOURNAL_SINCE} >journal-dump.log
+    Get File    journal-dump.log    ${OUTPUT DIR}/journal-${SUITE NAME}.log
