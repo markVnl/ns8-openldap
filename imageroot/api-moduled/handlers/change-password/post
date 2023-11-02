@@ -51,4 +51,22 @@ print(proc_lpasswd.stdout, file=sys.stderr)
 if proc_lpasswd.returncode == 0:
     json.dump({"status": "success", "message": "password_changed"}, fp=sys.stdout)
 else:
-    json.dump({"status": "failure", "message": proc_lpasswd.stdout or f"ldap_error_{proc_lpasswd.returncode}"}, fp=sys.stdout)
+    # Combined output
+    lmessage = proc_lpasswd.stdout + proc_lpasswd.stderr
+
+    if proc_lpasswd.returncode == 49:
+        emessage = "error_invalid_credentials"
+    elif '(Password fails quality checks)' in lmessage:
+        emessage = "error_password_complexity"
+    elif '(Password is too short for policy)' in lmessage:
+        emessage = "error_password_length"
+    elif '(New password is in list of old passwords)' in lmessage:
+        emessage = "error_password_history"
+    elif 'Password has been changed too recently)' in lmessage:
+        emessage = "error_password_minimum_age"
+    else:
+        emessage = "error_unknown"
+        # Log the combined output: it might contain troubleshoot information!
+        print("ldappasswd:", lmessage, file=sys.stderr)
+
+    json.dump({"status": "failure", "message": emessage}, fp=sys.stdout)
