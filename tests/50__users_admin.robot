@@ -24,7 +24,7 @@ User portal requires HTTPS
 User portal has expected homepage
     ${output}  ${error}  ${rc} =  Execute Command    curl -k -L http://127.0.0.1/users-admin/${DOMAIN}/    return_rc=1  return_stderr=True
     Should Be Equal As Integers    ${rc}    0
-    Should Contain    ${output}    <pre>
+    Should Contain    ${output}    <div id=\"app\">
 
 Denied access with bad token
     ${output}  ${error}  ${rc} =  Execute Command    curl -H "Authorization: Bearer ${TOKEN}" -H 'Content-type: application/json' --data '{}' -k https://127.0.0.1/users-admin/${DOMAIN}/api/logout    return_rc=1  return_stderr=True
