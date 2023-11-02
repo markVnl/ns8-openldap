@@ -102,3 +102,6 @@ dist
 
 # TernJS port file
 .tern-port
+
+# ns8-user-manager
+ns8-user-manager*

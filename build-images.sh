@@ -31,6 +31,12 @@ else
 fi
 
 buildah add "${container}" imageroot /imageroot
+
+# Copy ui of ns8-user-manager
+user_manager_version=v0.2.1
+curl -f -L -O https://github.com/NethServer/ns8-user-manager/releases/download/${user_manager_version}/ns8-user-manager-${user_manager_version}.tar.gz
+buildah add "${container}" ns8-user-manager-${user_manager_version}.tar.gz /imageroot/api-moduled/public/
+
 buildah add "${container}" ui/dist /ui
 buildah config --entrypoint=/ \
     --label='org.nethserver.authorizations=ldapproxy@node:accountprovider cluster:accountprovider traefik@node:routeadm' \

@@ -36,6 +36,16 @@
       ],
       "depNameTemplate": "node",
       "datasourceTemplate": "docker"
+    },
+    {
+      "fileMatch": [
+        "build-images.sh"
+      ],
+      "matchStrings": [
+        "user_manager_version=(?<currentValue>.*?)\\n"
+      ],
+      "depNameTemplate": "NethServer/ns8-user-manager",
+      "datasourceTemplate": "github-releases"
     }
   ],
   "packageRules": [
