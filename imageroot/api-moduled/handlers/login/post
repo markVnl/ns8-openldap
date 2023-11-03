@@ -32,7 +32,7 @@ proc_whoami = subprocess.run(["podman", "exec", "-i", "openldap",
 
 oclaims = {
     "uid": ouser["user"],
-    "groups": ouser["groups"],
+    "groups": list(ogroup["group"] for ogroup in ouser["groups"])
 }
 
 if proc_whoami.returncode == 49 and "Password expired" in proc_whoami.stderr:
