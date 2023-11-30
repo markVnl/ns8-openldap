@@ -1,0 +1,57 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "add-user input",
+    "$id": "http://schema.nethserver.org/openldap/add-user-input.json",
+    "description": "Add a user to the LDAP database",
+    "type": "object",
+    "examples": [
+        {
+            "user": "alice",
+            "display_name": "Alice Jordan",
+            "password": "secret",
+            "locked": false,
+            "groups": [
+                "developers"
+            ]
+        }
+    ],
+    "required": [
+        "user"
+    ],
+    "properties": {
+        "user": {
+            "title": "User identifier",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "pattern": "^[a-z][-._a-z0-9]*$"
+        },
+        "display_name": {
+            "title": "Display name",
+            "type": "string",
+            "maxLength": 256
+        },
+        "password": {
+            "title": "Initial password",
+            "description": "If missing, a random password is set",
+            "type": "string",
+            "maxLength": 256
+        },
+        "locked": {
+            "type": "boolean",
+            "title": "Locked",
+            "description": "True, if the user account has been locked, preventing the user from logging in"
+        },
+        "groups": {
+            "title": "Initial group membership",
+            "description": "Set the user as a member of the given list of groups",
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+                "type": "string",
+                "minLength": 1
+            }
+        }
+    },
+    "$defs": {}
+}

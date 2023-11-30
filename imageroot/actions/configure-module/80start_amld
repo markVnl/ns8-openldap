@@ -29,7 +29,7 @@ agent.write_envfile("api-moduled.env", {
     "AMLD_JWT_REALM": os.environ["LDAP_DOMAIN"],
     "AMLD_JWT_SECRET": amld_secret,
     "AMLD_BIND_ADDRESS": ":" + amld_port,
-    "AMLD_EXPORT_ENV": "NODE_ID LDAP_DOMAIN REDIS_ADDRESS"
+    "AMLD_EXPORT_ENV": "NODE_ID LDAP_DOMAIN REDIS_ADDRESS LDAP_SUFFIX"
 })
 
 # Configure Traefik to route "/user-admin/<LDAP_DOMAIN>" path requests to

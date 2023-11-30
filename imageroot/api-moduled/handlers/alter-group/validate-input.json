@@ -1,0 +1,44 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "alter-group input",
+    "$id": "http://schema.nethserver.org/openldap/alter-group-input.json",
+    "description": "Alter an existing group of users",
+    "examples": [
+        {
+            "group": "developers",
+            "description": "Product developers",
+            "users": [
+                "bob",
+                "sanya",
+                "alice"
+            ]
+        }
+    ],
+    "type": "object",
+    "required": [
+        "group"
+    ],
+    "properties": {
+        "group": {
+            "title": "Group identifier",
+            "type": "string",
+            "minLength": 1
+        },
+        "description": {
+            "title": "Group description",
+            "type":"string",
+            "maxLength": 256
+        },
+        "users": {
+            "title": "Group members",
+            "type":"array",
+            "items": {
+                "title": "User identifier",
+                "type": "string",
+                "minLength": 1,
+                "uniqueItems": true
+            }
+        }
+    },
+    "$defs": {}
+}

@@ -1,0 +1,57 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "alter-user input",
+    "$id": "http://schema.nethserver.org/openldap/alter-user-input.json",
+    "description": "Alter an existing user. Only the user identifier attibute is mandatory",
+    "type": "object",
+    "examples": [
+        {
+            "user": "alice",
+            "display_name": "Alice Jordan",
+            "password": "secret",
+            "locked": "false",
+            "groups": [
+                "developers","managers"
+            ]
+        }
+    ],
+    "required": [
+        "user"
+    ],
+    "properties": {
+        "user": {
+            "title": "User identifier",
+            "description": "The user must exist",
+            "type": "string",
+            "minLength": 1
+        },
+        "display_name": {
+            "title": "Full name",
+            "type": "string",
+            "maxLength": 256
+        },
+        "password": {
+            "title": "New password",
+            "description": "If empty, a random password is set",
+            "type": "string",
+            "maxLength": 256
+        },
+        "groups": {
+            "title": "Group membership",
+            "description": "Set the user as a member of the given list of groups",
+            "type": "array",
+            "items": {
+                "title": "Group identifier",
+                "type": "string",
+                "uniqueItems": true,
+                "minLength": 1
+            }
+        },
+        "locked": {
+            "type": "boolean",
+            "title": "Locked",
+            "description": "True, if the user account has been locked, preventing the user from logging in"
+        }
+    },
+    "$defs": {}
+}

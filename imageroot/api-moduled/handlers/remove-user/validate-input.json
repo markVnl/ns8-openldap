@@ -1,0 +1,23 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "remove-user input",
+    "$id": "http://schema.nethserver.org/openldap/remove-user-input.json",
+    "description": "Remove an existing user",
+    "examples": [
+        {
+            "user": "alice"
+        }
+    ],
+    "type": "object",
+    "required": [
+        "user"
+    ],
+    "properties": {
+        "user": {
+            "title": "User identifier",
+            "type": "string",
+            "minLength": 1
+        }
+    },
+    "$defs": {}
+}

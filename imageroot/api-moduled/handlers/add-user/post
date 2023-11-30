@@ -1,0 +1,74 @@
+#!/usr/bin/env python3
+
+#
+# Copyright (C) 2022 Nethesis S.r.l.
+# http://www.nethesis.it - nethserver@nethesis.it
+#
+# This script is part of NethServer.
+#
+# NethServer is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License,
+# or any later version.
+#
+# NethServer is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NethServer.  If not, see COPYING.
+#
+
+import os
+import sys
+import json
+import subprocess
+
+request = json.load(sys.stdin)
+user = request['user']
+domsuffix = os.environ['LDAP_SUFFIX']
+
+# check if user already exists
+testexists_cmd = ['podman', 'exec', '-i', 'openldap', 'ldapsearch',
+                  '-s', 'base', '-b', f'uid={user},ou=People,{domsuffix}']
+proc = subprocess.run(testexists_cmd, stdout=subprocess.DEVNULL,
+                      stderr=subprocess.DEVNULL, text=True)
+if proc.returncode == 0:
+    json.dump({"status": "failure", "message": "", "error": [
+              {'field': 'user', 'parameter': 'user', 'value': user, 'error': 'user_already_exists'}]}, fp=sys.stdout)
+    sys.exit(2)
+
+groups = request.get('groups', [])
+
+# empty string implies a random password is set
+password = request.get('password', '')
+display_name = request.get('display_name', '')
+locked = request.get('locked', False)
+
+# execute add user
+adduser_cmd = ['podman', 'exec', '-i', 'openldap', 'add-user']
+
+if groups:
+    adduser_cmd += ['-g', ','.join(groups)]
+
+if password:
+    adduser_cmd += ['-p', '-']  # read password from stdin
+else:
+    password = None
+    adduser_cmd += ['-p', '']  # generate a random password
+
+if display_name:
+    adduser_cmd += ['-d', display_name]
+
+adduser_cmd.append(user)
+
+subprocess.run(adduser_cmd, input=password,
+               stdout=sys.stderr, check=True, text=True)
+
+if locked:
+    lock_cmd = ['podman', 'exec', '-i', 'openldap', 'alter-user', '-l', user]
+    subprocess.run(lock_cmd, stdout=sys.stderr, check=True, text=True)
+
+
+json.dump({"status": "success", "message": "user_created"}, fp=sys.stdout)

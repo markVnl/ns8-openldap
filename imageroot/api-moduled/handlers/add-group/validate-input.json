@@ -1,0 +1,44 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "add-group input",
+    "$id": "http://schema.nethserver.org/openldap/add-group-input.json",
+    "description": "Add a group of users to the LDAP database",
+    "examples": [
+        {
+            "group": "developers",
+            "description": "",
+            "users": [
+                "bob",
+                "alice"
+            ]
+        }
+    ],
+    "type": "object",
+    "required": [
+        "group",
+        "users"
+    ],
+    "properties": {
+        "group": {
+            "title": "Group identifier",
+            "type": "string",
+            "minLength": 1
+        },
+        "description": {
+            "title": "Group description",
+            "type":"string",
+            "maxLength": 256
+        },
+        "users": {
+            "title": "Group members",
+            "type":"array",
+            "items": {
+                "title": "User identifier",
+                "type": "string",
+                "minLength": 1,
+                "uniqueItems": true
+            }
+        }
+    },
+    "$defs": {}
+}
