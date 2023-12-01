@@ -118,3 +118,10 @@ The `.json` files define the API input/output syntax validation, using the
 JSON schema language. As such they can give an idea of request/response
 payload structure.
 
+## Migration notes
+
+- The NS7 domain is migrated as `directory.nh`
+- The password policy feature does not exist in NS7. When the NS7 LDAP
+  account provider is migrated to NS8 the password policy is set in a
+  disabled state and can be enabled later from the Domains and Users page
+  as usual.

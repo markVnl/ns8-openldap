@@ -1,0 +1,33 @@
+#!/bin/bash
+
+#
+# Copyright (C) 2023 Nethesis S.r.l.
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+
+exec 1>&2
+set -e
+
+echo "Fix the default password policy"
+podman exec -i openldap ldapadd -c <<EOF || :
+dn: ou=PPolicy,${LDAP_SUFFIX}
+objectClass: top
+objectClass: organizationalUnit
+ou: PPolicy
+
+dn: cn=default,ou=PPolicy,${LDAP_SUFFIX}
+objectClass: namedPolicy
+objectClass: pwdPolicy
+objectClass: pwdPolicyChecker
+cn: default
+pwdAttribute: userPassword
+pwdCheckQuality: 0
+pwdMinAge: 0
+pwdMaxAge: 0
+pwdMinLength: 0
+pwdInHistory: 0
+pwdLockout: FALSE
+pwdUseCheckModule: FALSE
+pwdCheckModuleArg: default
+pwdExpireWarning: 0
+EOF
