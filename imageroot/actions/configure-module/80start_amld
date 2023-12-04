@@ -21,8 +21,7 @@ ip_address = os.environ['LDAP_IPADDR']
 
 _, amld_port, _ = (os.environ['TCP_PORTS'] + ',,').split(",", 2)
 
-# Ensure TCP port for api-moduled was allocated
-agent.assert_exp(int(amld_port) > 0)
+agent.assert_exp(int(amld_port) > 0) # Ensure TCP port for api-moduled was allocated
 
 alphabet = string.ascii_letters + string.digits + '+-/,.-_^'
 amld_secret = ''.join([secrets.choice(alphabet) for i in range(32)])
@@ -70,5 +69,4 @@ trx.execute()
 with open(f'{agent_install_dir}/api-moduled/public/config.json', 'w+') as f:
     json.dump({"domain": domain}, f)
 
-agent.run_helper("systemctl", "-T", "--user", "enable",
-                 "--now", "api-moduled.service")
+agent.run_helper("systemctl", "-T", "--user", "enable", "--now", "api-moduled.service")
