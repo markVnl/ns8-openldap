@@ -14,13 +14,15 @@ import secrets
 import json
 
 agent_id = os.environ['AGENT_ID']
+agent_install_dir = os.environ['AGENT_INSTALL_DIR']
 node_id = int(os.environ['NODE_ID'])
 domain = os.environ['LDAP_DOMAIN']
 ip_address = os.environ['LDAP_IPADDR']
 
 _, amld_port, _ = (os.environ['TCP_PORTS'] + ',,').split(",", 2)
 
-agent.assert_exp(int(amld_port) > 0) # Ensure TCP port for api-moduled was allocated
+# Ensure TCP port for api-moduled was allocated
+agent.assert_exp(int(amld_port) > 0)
 
 alphabet = string.ascii_letters + string.digits + '+-/,.-_^'
 amld_secret = ''.join([secrets.choice(alphabet) for i in range(32)])
@@ -64,4 +66,9 @@ trx.publish(agent_id + '/event/service-users-admin-changed', json.dumps({
 }))
 trx.execute()
 
-agent.run_helper("systemctl", "-T", "--user", "enable", "--now", "api-moduled.service")
+# Write domain in config.json file for the UI
+with open(f'{agent_install_dir}/api-moduled/public/config.json', 'w+') as f:
+    json.dump({"domain": domain}, f)
+
+agent.run_helper("systemctl", "-T", "--user", "enable",
+                 "--now", "api-moduled.service")
