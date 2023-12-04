@@ -1,0 +1,77 @@
+#!/usr/bin/env python3
+
+#
+# Copyright (C) 2023 Nethesis S.r.l.
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+
+import json
+import sys
+import subprocess
+import os
+
+SECONDS_PER_DAY = 86400
+ldap_suffix = os.environ["LDAP_SUFFIX"]
+
+# PASSWORD POLICY
+ldapsearch_proc = subprocess.run(["podman", "exec", "openldap",
+                                  "ldapsearch", "-LLL", "-b", f"cn=default,ou=PPolicy,{ldap_suffix}", "-s", "base"
+                                  ], text=True, capture_output=True, check=True)
+
+ppolicy = {
+    "expiration": {
+        "min_age": 0,
+        "max_age": 0,
+        "enforced": False,
+    },
+    "strength": {
+        "enforced": False,
+        "history_length": 0,
+        "password_min_length": 0,
+        "complexity_check": False,
+    }
+}
+
+for line in ldapsearch_proc.stdout.split("\n"):
+    if not line:
+        continue
+
+    lattr, lval = line.split(":", 1)
+    lval = lval.strip()  # trim wrapping blanks
+
+    if lattr == "pwdMinAge":
+        ppolicy["expiration"]["min_age"] = int(lval) // SECONDS_PER_DAY
+    elif lattr == "pwdMaxAge":
+        ppolicy["expiration"]["max_age"] = int(lval) // SECONDS_PER_DAY
+    elif lattr == "pwdMinLength":
+        ppolicy["strength"]["password_min_length"] = int(lval)
+    elif lattr == "pwdInHistory":
+        ppolicy["strength"]["history_length"] = int(lval)
+    elif lattr == "pwdUseCheckModule":
+        ppolicy["strength"]["complexity_check"] = lval == 'TRUE'
+
+if ppolicy["strength"]["complexity_check"] is True or \
+        ppolicy["strength"]["history_length"] > 0 or \
+        ppolicy["strength"]["password_min_length"] > 0:
+    ppolicy["strength"]["enforced"] = True
+else:
+    ppolicy["strength"]["enforced"] = False
+    ppolicy["strength"]["history_length"] = 12
+    ppolicy["strength"]["password_min_length"] = 8
+    ppolicy["strength"]["complexity_check"] = True
+
+if ppolicy["expiration"]["min_age"] > 0 or \
+        ppolicy["expiration"]["max_age"] > 0:
+    ppolicy["expiration"]["enforced"] = True
+else:
+    ppolicy["expiration"]["enforced"] = False
+    ppolicy["expiration"]["min_age"] = 0
+    ppolicy["expiration"]["max_age"] = 180
+
+# END PASSWORD POLICY
+
+config = {
+    'password_settings': ppolicy
+}
+json.dump({"status": "success", "message": "configuration_listed",
+          "config": config}, fp=sys.stdout)
