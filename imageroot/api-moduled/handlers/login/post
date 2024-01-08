@@ -41,5 +41,7 @@ if proc_whoami.returncode == 49 and "Password expired" in proc_whoami.stderr:
     oclaims["scope"] = ["change-password"]
 elif proc_whoami.returncode != 0:
     sys.exit(3) # Login failed
+elif "domain admins" not in oclaims["groups"]:
+    oclaims["scope"] = ["change-password"]
 
 json.dump(oclaims, fp=sys.stdout)

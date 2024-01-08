@@ -32,7 +32,21 @@ if 'locked' in request:
 
 alteruser_cmd.append(user)
 
-subprocess.run(alteruser_cmd, input=request.get('password'),
-               stdout=sys.stderr, check=True, text=True)
+alter_user_result = subprocess.run(alteruser_cmd, input=request.get('password'), capture_output=True, text=True)
 
-json.dump({"status": "success", "message": "user_altered"}, fp=sys.stdout)
+if alter_user_result.returncode == 0:
+    json.dump({"status": "success", "message": "password_changed"}, fp=sys.stdout)
+else:
+    lmessage = alter_user_result.stdout + alter_user_result.stderr
+
+    if 'Password fails quality checking policy' in lmessage:
+        emessage = "error_password_complexity"
+    elif 'Password is in history of old passwords' in lmessage:
+        emessage = "error_password_history"
+    elif 'Password is not being changed from existing value' in lmessage:
+        emessage = "error_password_same"
+    else:
+        emessage = "error_unknown"
+
+    print(lmessage, file=sys.stderr)
+    json.dump({"status": "failure", "message": emessage}, fp=sys.stdout)
