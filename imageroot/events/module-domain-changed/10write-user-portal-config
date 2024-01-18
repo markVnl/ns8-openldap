@@ -14,7 +14,6 @@ import agent
 event = json.load(sys.stdin)
 domain = os.environ["LDAP_DOMAIN"]
 if not domain in event["domains"]:
-    print(f"Domain {domain} not found in event domains", file=sys.stderr)
     sys.exit(0)
 
 agent.run_helper('write-user-portal-config')
