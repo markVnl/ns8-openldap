@@ -65,8 +65,5 @@ trx.publish(agent_id + '/event/service-users-admin-changed', json.dumps({
 }))
 trx.execute()
 
-# Write domain in config.json file for the UI
-with open(f'{agent_install_dir}/api-moduled/public/config.json', 'w+') as f:
-    json.dump({"domain": domain}, f)
-
+# we write api-moduled/public/config.json when the service starts
 agent.run_helper("systemctl", "-T", "--user", "enable", "--now", "api-moduled.service")
